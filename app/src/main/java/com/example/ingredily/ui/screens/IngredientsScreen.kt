@@ -23,9 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,9 +44,12 @@ fun IngredientsScreen(
     when (val ingredientsDataState = ingredientsUiState.ingredientsDataState) {
         is IngredientsDataState.Initial -> InitialScreen(modifier = Modifier.fillMaxSize())
         is IngredientsDataState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+
         is IngredientsDataState.Success -> IngredientSuccessScreen(
-            ingredientsDataState.ingredients,
-            modifier.padding(top = contentPadding.calculateTopPadding())
+            isIngredientSelected = { ingredient -> ingredientsUiState.isSelected(ingredient) },
+            onSelectionToggled = { ingredient -> ingredientsViewModel.toggleSelection(ingredient) },
+            ingredients = ingredientsDataState.ingredients,
+            modifier = modifier.padding(top = contentPadding.calculateTopPadding())
         )
 
         is IngredientsDataState.Error -> ErrorScreen(modifier = Modifier.fillMaxSize())
@@ -59,7 +59,12 @@ fun IngredientsScreen(
 }
 
 @Composable
-fun IngredientSuccessScreen(ingredients: List<Ingredient>, modifier: Modifier = Modifier) {
+fun IngredientSuccessScreen(
+    isIngredientSelected: (Ingredient) -> Boolean,
+    onSelectionToggled: (Ingredient) -> Unit,
+    ingredients: List<Ingredient>,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -77,7 +82,11 @@ fun IngredientSuccessScreen(ingredients: List<Ingredient>, modifier: Modifier = 
             modifier = Modifier
         ) {
             items(items = ingredients) { ingredient ->
-                SelectableIngredientCard(ingredient = ingredient.name)
+                SelectableIngredientCard(
+                    ingredient = ingredient,
+                    isChecked = isIngredientSelected(ingredient),
+                    onCheckToggled = { onSelectionToggled(ingredient) },
+                )
             }
         }
     }
@@ -85,10 +94,12 @@ fun IngredientSuccessScreen(ingredients: List<Ingredient>, modifier: Modifier = 
 
 @Composable
 fun SelectableIngredientCard(
-    ingredient: String,
+    ingredient: Ingredient,
+    isChecked: Boolean,
+    onCheckToggled: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isChecked by remember { mutableStateOf(false) }
+
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -96,7 +107,7 @@ fun SelectableIngredientCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { isChecked = !isChecked }
+            .clickable { onCheckToggled() }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -104,11 +115,11 @@ fun SelectableIngredientCard(
         ) {
             Checkbox(
                 checked = isChecked,
-                onCheckedChange = { isChecked = it },
+                onCheckedChange = { onCheckToggled() },
             )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = ingredient,
+                text = ingredient.name,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -137,10 +148,13 @@ fun ErrorScreen(modifier: Modifier) {
 fun IngredientSuccessScreenPreview() {
     IngredilyTheme {
         IngredientSuccessScreen(
+            isIngredientSelected = { false },
+            onSelectionToggled = {},
             ingredients = listOf<Ingredient>(
                 Ingredient(name = "test1"),
                 Ingredient(name = "test2"),
                 Ingredient(name = "test3"),
+                Ingredient(name = "test4"),
             )
         )
     }

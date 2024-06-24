@@ -23,7 +23,12 @@ sealed interface IngredientsDataState {
 
 data class IngredientsUiState(
     val ingredientsDataState: IngredientsDataState = IngredientsDataState.Initial,
-)
+    val selectedIngredients: List<Ingredient> = listOf()
+) {
+    fun isSelected(ingredient: Ingredient): Boolean {
+        return selectedIngredients.contains(ingredient)
+    }
+}
 
 class IngredientsViewModel(private val recipesRepository: RecipesRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(IngredientsUiState())
@@ -38,22 +43,33 @@ class IngredientsViewModel(private val recipesRepository: RecipesRepository) : V
         IngredientsDataState.Loading
         try {
             val listResult = recipesRepository.getIngredients()
-            updateIngredientsDataState(IngredientsDataState.Success(listResult))
+            _uiState.update { currentState ->
+                currentState.copy(ingredientsDataState = IngredientsDataState.Success(listResult))
+            }
         } catch (e: IOException) {
-            updateIngredientsDataState(IngredientsDataState.Error)
+            _uiState.update { currentState ->
+                currentState.copy(ingredientsDataState = IngredientsDataState.Error)
+            }
         }
     }
 
-    private fun updateIngredientsDataState(state: IngredientsDataState) {
+    fun toggleSelection(ingredient: Ingredient) {
         _uiState.update { currentState ->
-            currentState.copy(ingredientsDataState = state)
+            val updatedList = currentState.selectedIngredients.toMutableList()
+            if (!_uiState.value.isSelected(ingredient)) {
+                updatedList.add(ingredient)
+            } else {
+                updatedList.remove(ingredient)
+            }
+            currentState.copy(selectedIngredients = updatedList)
         }
     }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as RecipesApplication)
+                val application =
+                    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as RecipesApplication)
                 val recipesRepository = application.container.recipesRepository
                 IngredientsViewModel(recipesRepository)
             }
