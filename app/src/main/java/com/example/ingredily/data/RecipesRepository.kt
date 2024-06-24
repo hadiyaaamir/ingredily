@@ -23,7 +23,6 @@ class RecipesRepositoryImpl() : RecipesRepository {
             Ingredient("capsicum"),
             Ingredient("mushroom"),
             Ingredient("corn"),
-            Ingredient("cucumber"),
             Ingredient("flour"),
             Ingredient("yeast"),
             Ingredient("oregano"),
