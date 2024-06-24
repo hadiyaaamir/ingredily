@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.ingredily.RecipesApplication
+import com.example.ingredily.data.Ingredient
 import com.example.ingredily.data.RecipesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,7 @@ import java.io.IOException
 
 sealed interface IngredientsDataState {
     object Initial : IngredientsDataState
-    data class Success(val ingredients: List<String>) : IngredientsDataState
+    data class Success(val ingredients: List<Ingredient>) : IngredientsDataState
     object Error : IngredientsDataState
     object Loading : IngredientsDataState
 }
@@ -33,7 +34,7 @@ class IngredientsViewModel(private val recipesRepository: RecipesRepository) : V
         getIngredients()
     }
 
-    fun getIngredients() {
+    private fun getIngredients() {
         IngredientsDataState.Loading
         try {
             val listResult = recipesRepository.getIngredients()

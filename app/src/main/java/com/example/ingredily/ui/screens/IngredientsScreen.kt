@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.ingredily.data.Ingredient
 import com.example.ingredily.ui.theme.IngredilyTheme
 
 @Composable
@@ -58,7 +59,7 @@ fun IngredientsScreen(
 }
 
 @Composable
-fun IngredientSuccessScreen(ingredients: List<String>, modifier: Modifier = Modifier) {
+fun IngredientSuccessScreen(ingredients: List<Ingredient>, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -71,12 +72,12 @@ fun IngredientSuccessScreen(ingredients: List<String>, modifier: Modifier = Modi
         Spacer(modifier = Modifier.size(28.dp))
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
         ) {
-            items(items = ingredients) {ingredient ->
-                SelectableIngredientCard(ingredient = ingredient)
+            items(items = ingredients) { ingredient ->
+                SelectableIngredientCard(ingredient = ingredient.name)
             }
         }
     }
@@ -136,10 +137,10 @@ fun ErrorScreen(modifier: Modifier) {
 fun IngredientSuccessScreenPreview() {
     IngredilyTheme {
         IngredientSuccessScreen(
-            ingredients = listOf<String>(
-                "test1",
-                "test2",
-                "test3",
+            ingredients = listOf<Ingredient>(
+                Ingredient(name = "test1"),
+                Ingredient(name = "test2"),
+                Ingredient(name = "test3"),
             )
         )
     }
