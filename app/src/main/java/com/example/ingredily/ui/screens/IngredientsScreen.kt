@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ingredily.data.Ingredient
 import com.example.ingredily.ui.theme.IngredilyTheme
 
@@ -37,27 +36,26 @@ import com.example.ingredily.ui.theme.IngredilyTheme
 fun IngredientsScreen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    onNextButtonClicked: (List<Ingredient>) -> Unit,
+    viewModel: IngredientsViewModel,
 ) {
-    val ingredientsViewModel: IngredientsViewModel = viewModel(
-        factory = IngredientsViewModel.Factory
-    )
-    val ingredientsUiState by ingredientsViewModel.uiState.collectAsState()
 
-    when (val ingredientsDataState = ingredientsUiState.ingredientsDataState) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    when (val ingredientsDataState = uiState.ingredientsDataState) {
         is IngredientsDataState.Initial -> InitialScreen(modifier = Modifier.fillMaxSize())
         is IngredientsDataState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
 
         is IngredientsDataState.Success -> IngredientSuccessScreen(
-            isIngredientSelected = { ingredient -> ingredientsUiState.isSelected(ingredient) },
-            onSelectionToggled = { ingredient -> ingredientsViewModel.toggleSelection(ingredient) },
+            isIngredientSelected = { ingredient -> uiState.isSelected(ingredient) },
+            onSelectionToggled = { ingredient -> viewModel.toggleSelection(ingredient) },
             ingredients = ingredientsDataState.ingredients,
+            onNextButtonClicked = { onNextButtonClicked(uiState.selectedIngredients) },
             modifier = modifier.padding(top = contentPadding.calculateTopPadding())
         )
 
         is IngredientsDataState.Error -> ErrorScreen(modifier = Modifier.fillMaxSize())
     }
-
-
 }
 
 @Composable
@@ -65,6 +63,7 @@ fun IngredientSuccessScreen(
     isIngredientSelected: (Ingredient) -> Boolean,
     onSelectionToggled: (Ingredient) -> Unit,
     ingredients: List<Ingredient>,
+    onNextButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -95,10 +94,13 @@ fun IngredientSuccessScreen(
         }
         Spacer(modifier = Modifier.size(28.dp))
         Button(
-            onClick = { },
-            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth().height(48.dp),
+            onClick = onNextButtonClicked,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth()
+                .height(48.dp),
 
-        ) {
+            ) {
             Text(text = "Get Recipes")
         }
     }
@@ -143,7 +145,6 @@ fun InitialScreen(modifier: Modifier) {
     Text(text = "initial")
 }
 
-
 @Composable
 fun LoadingScreen(modifier: Modifier) {
     Text(text = "loading")
@@ -154,7 +155,6 @@ fun ErrorScreen(modifier: Modifier) {
     Text(text = "error")
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun IngredientSuccessScreenPreview() {
@@ -162,7 +162,8 @@ fun IngredientSuccessScreenPreview() {
         IngredientSuccessScreen(
             isIngredientSelected = { false },
             onSelectionToggled = {},
-            ingredients = listOf<Ingredient>(
+            onNextButtonClicked = {},
+            ingredients = listOf(
                 Ingredient(name = "test1"),
                 Ingredient(name = "test2"),
                 Ingredient(name = "test3"),

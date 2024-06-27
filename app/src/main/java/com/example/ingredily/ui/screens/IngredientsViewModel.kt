@@ -68,8 +68,10 @@ class IngredientsViewModel(private val recipesRepository: RecipesRepository) : V
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application =
-                    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as RecipesApplication)
+                val application = (
+                        this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY]
+                                as RecipesApplication
+                        )
                 val recipesRepository = application.container.recipesRepository
                 IngredientsViewModel(recipesRepository)
             }
