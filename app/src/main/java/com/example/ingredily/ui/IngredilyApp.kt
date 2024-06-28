@@ -46,6 +46,7 @@ fun IngredilyApp(
                     viewModel = ingredientsViewModel,
                     onNextButtonClicked = { ingredients ->
                         recipesViewModel.initialiseIngredientsFilter(ingredients)
+                        recipesViewModel.getRecipesByIngredients()
                         navController.navigate(IngredilyScreen.Recipes.name)
                     }
                 )

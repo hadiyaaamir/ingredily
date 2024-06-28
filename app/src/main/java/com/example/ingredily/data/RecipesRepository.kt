@@ -1,12 +1,19 @@
 package com.example.ingredily.data
 
+import com.example.ingredily.network.IngredientSearchRecipe
+import com.example.ingredily.network.RecipesApiService
+
 
 interface RecipesRepository {
     fun getIngredients(): List<Ingredient>
-    suspend fun getRecipes(): List<String>
+    suspend fun getRecipesByIngredients(
+        ingredients: List<Ingredient>
+    ): List<IngredientSearchRecipe>
 }
 
-class RecipesRepositoryImpl() : RecipesRepository {
+class RecipesRepositoryImpl(
+    private val recipesApiService: RecipesApiService
+) : RecipesRepository {
 
     override fun getIngredients(): List<Ingredient> {
         return listOf<Ingredient>(
@@ -37,8 +44,9 @@ class RecipesRepositoryImpl() : RecipesRepository {
         )
     }
 
-    override suspend fun getRecipes(): List<String> {
-        TODO("Not yet implemented")
+    override suspend fun getRecipesByIngredients(
+        ingredients: List<Ingredient>
+    ): List<IngredientSearchRecipe> {
+       return recipesApiService.getRecipesByIngredients(API_KEY, ingredients.toQueryString())
     }
-
 }
