@@ -1,6 +1,7 @@
 package com.example.ingredily.network
 
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface RecipesApiService {
@@ -9,4 +10,10 @@ interface RecipesApiService {
         @Query("apiKey") apiKey: String,
         @Query("ingredients") ingredients: String,
     ): List<IngredientSearchRecipe>
+
+    @GET("recipes/{id}/information")
+    suspend fun getRecipeDetail(
+        @Path("id") recipeId: Int,
+        @Query("apiKey") apiKey: String,
+    ) : DetailedRecipe
 }

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.ingredily.RecipesApplication
 import com.example.ingredily.data.Ingredient
 import com.example.ingredily.data.RecipesRepository
+import com.example.ingredily.network.DetailedRecipe
 import com.example.ingredily.network.IngredientSearchRecipe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,8 +24,16 @@ sealed interface SearchedRecipesDataState {
     object Loading : SearchedRecipesDataState
 }
 
+sealed interface RecipeDetailDataState {
+    object Initial : RecipeDetailDataState
+    data class Success(val recipe: DetailedRecipe) : RecipeDetailDataState
+    object Error : RecipeDetailDataState
+    object Loading : RecipeDetailDataState
+}
+
 data class RecipesUiState(
     val searchedRecipesDataState: SearchedRecipesDataState = SearchedRecipesDataState.Initial,
+    val recipeDetailDataState: RecipeDetailDataState = RecipeDetailDataState.Initial,
     val ingredientsFilter: List<Ingredient> = listOf()
 )
 
@@ -41,8 +50,10 @@ class RecipesViewModel(private val recipesRepository: RecipesRepository) : ViewM
     }
 
     fun getRecipesByIngredients() {
-        SearchedRecipesDataState.Loading
         viewModelScope.launch {
+            _uiState.update { currentState ->
+                currentState.copy(searchedRecipesDataState = SearchedRecipesDataState.Loading)
+            }
             try {
                 val listResult = recipesRepository.getRecipesByIngredients(
                     uiState.value.ingredientsFilter
@@ -57,6 +68,26 @@ class RecipesViewModel(private val recipesRepository: RecipesRepository) : ViewM
                     currentState.copy(
                         searchedRecipesDataState = SearchedRecipesDataState.Error
                     )
+                }
+            }
+        }
+    }
+
+    fun getRecipeDetails(id: Int) {
+        viewModelScope.launch {
+            _uiState.update { currentState ->
+                currentState.copy(recipeDetailDataState = RecipeDetailDataState.Loading)
+            }
+            try {
+                val result = recipesRepository.getRecipeDetail(id)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        recipeDetailDataState = RecipeDetailDataState.Success(result)
+                    )
+                }
+            } catch (e: IOException) {
+                _uiState.update { currentState ->
+                    currentState.copy(recipeDetailDataState = RecipeDetailDataState.Error)
                 }
             }
         }

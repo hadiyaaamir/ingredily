@@ -44,6 +44,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.ingredily.network.IngredientSearchRecipe
@@ -62,6 +63,7 @@ fun RecipesScreen(
 
         is SearchedRecipesDataState.Success -> RecipesSuccessScreen(
             recipes = searchedRecipesDataState.recipes,
+            viewModel = viewModel,
             modifier = modifier,
         )
 
@@ -73,6 +75,7 @@ fun RecipesScreen(
 @Composable
 fun RecipesSuccessScreen(
     recipes: List<IngredientSearchRecipe>,
+    viewModel: RecipesViewModel,
     modifier: Modifier = Modifier
 ) {
 
@@ -98,6 +101,7 @@ fun RecipesSuccessScreen(
                             RecipeCard(
                                 recipe = recipe,
                                 onClicked = {
+                                   viewModel.getRecipeDetails(recipe.id)
                                     navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, recipe)
                                 }
                             )
@@ -108,9 +112,8 @@ fun RecipesSuccessScreen(
         },
         detailPane = {
             AnimatedPane {
-
                 navigator.currentDestination?.content?.let {
-                    Text(text = "detail pane for recipe ${it.title}")
+                    RecipeDetailScreen(recipe = it, viewModel = viewModel, modifier = modifier)
                 }
             }
 
@@ -192,7 +195,7 @@ fun RecipeCard(
 fun IconTextRow(
     icon: ImageVector,
     iconDescription: String,
-    iconColor: Color,
+    iconColor: Color = MaterialTheme.colorScheme.outline,
     text: String,
     modifier: Modifier = Modifier,
     iconSize: Dp = 12.dp,
@@ -227,9 +230,13 @@ fun RecipesSuccessScreenPreview() {
         likes = 4,
         missedIngredientCount = 2,
         usedIngredientCount = 4,
+        unusedIngredients = listOf(),
+        usedIngredients = listOf(),
+        missedIngredients = listOf(),
     )
     IngredilyTheme {
         RecipesSuccessScreen(
+            viewModel = viewModel(),
             recipes = listOf(
                 fakeRecipe,
                 fakeRecipe,

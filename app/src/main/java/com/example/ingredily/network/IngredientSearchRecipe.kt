@@ -11,4 +11,7 @@ data class IngredientSearchRecipe(
     val usedIngredientCount: Int,
     val missedIngredientCount: Int,
     val likes: Int,
+    val usedIngredients: List<RecipeIngredient>,
+    val missedIngredients: List<RecipeIngredient>,
+    val unusedIngredients: List<RecipeIngredient>,
 )
