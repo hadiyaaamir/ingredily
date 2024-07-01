@@ -17,4 +17,11 @@ interface RecipesApiService {
         @Path("id") recipeId: Int,
         @Query("apiKey") apiKey: String,
     ) : DetailedRecipe
+
+    @GET("food/ingredients/search")
+    suspend fun searchIngredients(
+        @Query("apiKey") apiKey: String,
+        @Query("query") query: String,
+        @Query("number") number: Int,
+    ) : IngredientSearch
 }
