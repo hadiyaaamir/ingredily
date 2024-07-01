@@ -25,7 +25,8 @@ sealed interface IngredientsDataState {
 
 data class IngredientsUiState(
     val ingredientsDataState: IngredientsDataState = IngredientsDataState.Initial,
-    val selectedIngredients: List<Ingredient> = listOf()
+    val selectedIngredients: List<Ingredient> = listOf(),
+    val allIngredients: List<Ingredient> = listOf(),
 ) {
     fun isSelected(ingredient: Ingredient): Boolean {
         return selectedIngredients.contains(ingredient)
@@ -49,7 +50,30 @@ class IngredientsViewModel(private val recipesRepository: RecipesRepository) : V
             try {
                 val listResult = recipesRepository.getIngredients()
                 _uiState.update { currentState ->
-                    currentState.copy(ingredientsDataState = IngredientsDataState.Success(listResult))
+                    currentState.copy(
+                        ingredientsDataState = IngredientsDataState.Success(listResult),
+                        allIngredients = listResult,
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update { currentState ->
+                    currentState.copy(ingredientsDataState = IngredientsDataState.Error)
+                }
+            }
+        }
+    }
+
+     fun searchIngredients(query: String) {
+        viewModelScope.launch {
+            _uiState.update { currentState ->
+                currentState.copy(ingredientsDataState = IngredientsDataState.Loading)
+            }
+            try {
+                val listResult = recipesRepository.searchIngredients(query)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        ingredientsDataState = IngredientsDataState.Success(listResult)
+                    )
                 }
             } catch (e: IOException) {
                 _uiState.update { currentState ->
@@ -58,6 +82,15 @@ class IngredientsViewModel(private val recipesRepository: RecipesRepository) : V
             }
         }
     }
+
+     fun clearIngredientSearch() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                ingredientsDataState = IngredientsDataState.Success(uiState.value.allIngredients)
+            )
+        }
+    }
+
 
     fun toggleSelection(ingredient: Ingredient) {
         _uiState.update { currentState ->

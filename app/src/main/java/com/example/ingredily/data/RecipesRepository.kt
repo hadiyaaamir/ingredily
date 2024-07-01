@@ -16,6 +16,12 @@ interface RecipesRepository {
     ): List<IngredientSearchRecipe>
 
     suspend fun getRecipeDetail(id: Int): DetailedRecipe
+
+    suspend fun searchIngredients(
+        query: String,
+        number: Int = 30,
+    ): List<Ingredient>
+
 }
 
 class RecipesRepositoryImpl(
@@ -55,5 +61,10 @@ class RecipesRepositoryImpl(
 
     override suspend fun getRecipeDetail(id: Int): DetailedRecipe {
         return recipesApiService.getRecipeDetail(id, API_KEY)
+    }
+
+    override suspend fun searchIngredients(query: String, number: Int): List<Ingredient> {
+        val data = recipesApiService.searchIngredients(API_KEY, query, number)
+        return data.results
     }
 }

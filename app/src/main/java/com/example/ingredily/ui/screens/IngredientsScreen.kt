@@ -18,22 +18,37 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ingredily.data.Ingredient
@@ -61,6 +76,8 @@ fun IngredientsScreen(
             onNextButtonClicked = { onNextButtonClicked(uiState.selectedIngredients) },
             onClearAllClicked = { viewModel.clearAllSelection() },
             nextButtonEnabled = uiState.selectedIngredients.isNotEmpty(),
+            onSearchSubmit = { text -> viewModel.searchIngredients(text) },
+            onSearchCleared = { viewModel.clearIngredientSearch() },
             modifier = modifier.padding(top = contentPadding.calculateTopPadding()),
         )
 
@@ -76,6 +93,8 @@ fun IngredientSuccessScreen(
     selectedIngredients: List<Ingredient>,
     onNextButtonClicked: () -> Unit,
     onClearAllClicked: () -> Unit,
+    onSearchCleared: () -> Unit,
+    onSearchSubmit: (searchText: String) -> Unit,
     nextButtonEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -96,6 +115,14 @@ fun IngredientSuccessScreen(
             )
         )
 
+        Spacer(modifier = Modifier.size(16.dp))
+
+        SearchBar(
+            onSearchSubmit = onSearchSubmit,
+            onClearSearch = onSearchCleared,
+            modifier = Modifier.fillMaxWidth()
+        )
+
         if (selectedIngredients.isNotEmpty()) {
             Spacer(modifier = Modifier.size(16.dp))
             ClearAllButton(modifier = Modifier
@@ -106,7 +133,9 @@ fun IngredientSuccessScreen(
         }
 
         SelectedIngredientList(ingredients = selectedIngredients)
+
         Spacer(modifier = Modifier.size(20.dp))
+
         AllIngredientsList(
             ingredients = sortedIngredients,
             isIngredientSelected = isIngredientSelected,
@@ -128,6 +157,68 @@ fun IngredientSuccessScreen(
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBar(
+    modifier: Modifier = Modifier,
+    onSearchSubmit: (searchText: String) -> Unit,
+    onClearSearch: () -> Unit,
+    searchIcon: ImageVector = Icons.Default.Search,
+    clearIcon: ImageVector = Icons.Default.Clear,
+) {
+    var text by remember { mutableStateOf(TextFieldValue()) }
+
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            placeholder = { Text(text = "Search Ingredients...") },
+            shape = RoundedCornerShape(16.dp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = { if(text.text.isNotEmpty()) onSearchSubmit(text.text) }
+            ),
+            leadingIcon = {
+                Icon(
+                    imageVector = searchIcon,
+                    contentDescription = "Search",
+                )
+            },
+            trailingIcon = {
+                if (text.text.isNotEmpty()) {
+                    IconButton(
+                        onClick = {
+                            text = TextFieldValue("")
+                            onClearSearch()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = clearIcon,
+                            contentDescription = "Clear",
+                            tint = Color.Gray
+                        )
+                    }
+                }
+            },
+            modifier = Modifier.weight(4f)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(
+            onClick = {  if(text.text.isNotEmpty())  onSearchSubmit(text.text) },
+            modifier = Modifier
+                .height(52.dp)
+                .weight(1f),
+            shape =  RoundedCornerShape(16.dp),
+        ) {
+            Text(text = "Go")
+        }
+    }
+}
+
 
 @Composable
 fun ClearAllButton(
@@ -177,9 +268,7 @@ fun AllIngredientsList(
         columns = GridCells.Fixed(2),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = modifier
-
-            .fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         items(items = ingredients) { ingredient ->
             SelectableIngredientCard(
@@ -199,8 +288,6 @@ fun SelectableIngredientCard(
     onCheckToggled: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
-
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -258,25 +345,30 @@ fun ErrorScreen(modifier: Modifier) {
 @Composable
 fun IngredientSuccessScreenPreview() {
     IngredilyTheme {
-        IngredientSuccessScreen(
-            isIngredientSelected = { false },
-            onSelectionToggled = {},
-            onNextButtonClicked = {},
-            onClearAllClicked = {},
-            ingredients = listOf(
-                Ingredient(name = "test1", id = 1),
-                Ingredient(name = "test2", id = 2),
-                Ingredient(name = "test3", id = 3),
-                Ingredient(name = "test4", id = 4),
-            ),
-            selectedIngredients = listOf(
-                Ingredient(name = "test3", id = 3),
-                Ingredient(name = "test1", id = 1),
-                Ingredient(name = "test2", id = 2),
-                Ingredient(name = "test3", id = 3),
-                Ingredient(name = "test4", id = 4),
-            ),
-            nextButtonEnabled = true,
+        SearchBar(
+            onSearchSubmit = {},
+            onClearSearch = {},
+            modifier = Modifier.fillMaxWidth()
         )
+//        IngredientSuccessScreen(
+//            isIngredientSelected = { false },
+//            onSelectionToggled = {},
+//            onNextButtonClicked = {},
+//            onClearAllClicked = {},
+//            ingredients = listOf(
+//                Ingredient(name = "test1", id = 1),
+//                Ingredient(name = "test2", id = 2),
+//                Ingredient(name = "test3", id = 3),
+//                Ingredient(name = "test4", id = 4),
+//            ),
+//            selectedIngredients = listOf(
+//                Ingredient(name = "test3", id = 3),
+//                Ingredient(name = "test1", id = 1),
+//                Ingredient(name = "test2", id = 2),
+//                Ingredient(name = "test3", id = 3),
+//                Ingredient(name = "test4", id = 4),
+//            ),
+//            nextButtonEnabled = true,
+//        )
     }
 }
