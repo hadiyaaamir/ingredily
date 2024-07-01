@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,6 +18,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,9 +57,11 @@ fun IngredientsScreen(
             isIngredientSelected = { ingredient -> uiState.isSelected(ingredient) },
             onSelectionToggled = { ingredient -> viewModel.toggleSelection(ingredient) },
             ingredients = ingredientsDataState.ingredients,
+            selectedIngredients = uiState.selectedIngredients,
             onNextButtonClicked = { onNextButtonClicked(uiState.selectedIngredients) },
-            nextButtonEnabled = uiState.selectedIngredients.isNotEmpty() ,
-            modifier = modifier.padding(top = contentPadding.calculateTopPadding())
+            onClearAllClicked = { viewModel.clearAllSelection() },
+            nextButtonEnabled = uiState.selectedIngredients.isNotEmpty(),
+            modifier = modifier.padding(top = contentPadding.calculateTopPadding()),
         )
 
         is IngredientsDataState.Error -> ErrorScreen(modifier = Modifier.fillMaxSize())
@@ -67,23 +73,62 @@ fun IngredientSuccessScreen(
     isIngredientSelected: (Ingredient) -> Boolean,
     onSelectionToggled: (Ingredient) -> Unit,
     ingredients: List<Ingredient>,
+    selectedIngredients: List<Ingredient>,
     onNextButtonClicked: () -> Unit,
+    onClearAllClicked: () -> Unit,
     nextButtonEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
+
+    val sortedIngredients = ingredients.sortedByDescending { isIngredientSelected(it) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(20.dp)
     ) {
         Spacer(modifier = Modifier.size(16.dp))
+
         Text(
             text = "What ingredients do you have today?",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.SemiBold
             )
         )
-        Spacer(modifier = Modifier.size(28.dp))
+
+        if (selectedIngredients.isNotEmpty()) {
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(
+                text = "Clear All",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    color = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier
+                    .clickable { onClearAllClicked() }
+                    .align(Alignment.End)
+                    .padding(bottom = 4.dp, end = 4.dp)
+            )
+        }
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(if (selectedIngredients.size > 5) 2 else 1),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.heightIn(max = 200.dp)
+        ) {
+            items(items = selectedIngredients, key = { it.id }) { ingredient ->
+                IconTextRow(
+                    icon = Icons.Outlined.Done,
+                    iconColor = Color(0xff119c6e),
+                    iconSize = 16.dp,
+                    iconDescription = "tick icon",
+                    text = ingredient.name,
+                    textStyle = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.size(20.dp))
+
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -92,7 +137,7 @@ fun IngredientSuccessScreen(
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-            items(items = ingredients) { ingredient ->
+            items(items = sortedIngredients) { ingredient ->
                 SelectableIngredientCard(
                     ingredient = ingredient,
                     isChecked = isIngredientSelected(ingredient),
@@ -108,7 +153,7 @@ fun IngredientSuccessScreen(
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
                 .height(48.dp),
-            ) {
+        ) {
             Text(text = "Get Recipes")
         }
     }
@@ -184,7 +229,15 @@ fun IngredientSuccessScreenPreview() {
             isIngredientSelected = { false },
             onSelectionToggled = {},
             onNextButtonClicked = {},
+            onClearAllClicked = {},
             ingredients = listOf(
+                Ingredient(name = "test1", id = 1),
+                Ingredient(name = "test2", id = 2),
+                Ingredient(name = "test3", id = 3),
+                Ingredient(name = "test4", id = 4),
+            ),
+            selectedIngredients = listOf(
+                Ingredient(name = "test3", id = 3),
                 Ingredient(name = "test1", id = 1),
                 Ingredient(name = "test2", id = 2),
                 Ingredient(name = "test3", id = 3),

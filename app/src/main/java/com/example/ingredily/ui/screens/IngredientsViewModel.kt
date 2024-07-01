@@ -71,6 +71,12 @@ class IngredientsViewModel(private val recipesRepository: RecipesRepository) : V
         }
     }
 
+    fun clearAllSelection() {
+        _uiState.update { currentState ->
+            currentState.copy(selectedIngredients = listOf())
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
