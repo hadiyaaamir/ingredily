@@ -1,5 +1,6 @@
 package com.example.ingredily.data
 
+import android.content.Context
 import com.example.ingredily.BuildConfig
 import com.example.ingredily.network.RecipesApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -16,13 +17,13 @@ interface AppContainer {
     val recipesRepository: RecipesRepository
 }
 
-class DefaultAppContainer : AppContainer {
+class DefaultAppContainer(context: Context) : AppContainer {
 
     private val baseUrl = "https://api.spoonacular.com"
 
     private val interceptor: HttpLoggingInterceptor = HttpLoggingInterceptor()
         .setLevel(HttpLoggingInterceptor.Level.BODY)
-    private val client: OkHttpClient = OkHttpClient.Builder().addInterceptor(interceptor).build();
+    private val client: OkHttpClient = OkHttpClient.Builder().addInterceptor(interceptor).build()
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -41,7 +42,11 @@ class DefaultAppContainer : AppContainer {
     }
 
     override val recipesRepository: RecipesRepository by lazy {
-        RecipesRepositoryImpl(recipesRetrofitService)
+
+        RecipesRepositoryImpl(
+            recipesApiService = recipesRetrofitService,
+            context = context,
+        )
     }
 
 }

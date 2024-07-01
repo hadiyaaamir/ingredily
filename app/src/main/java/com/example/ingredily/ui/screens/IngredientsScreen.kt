@@ -54,6 +54,7 @@ fun IngredientsScreen(
             onSelectionToggled = { ingredient -> viewModel.toggleSelection(ingredient) },
             ingredients = ingredientsDataState.ingredients,
             onNextButtonClicked = { onNextButtonClicked(uiState.selectedIngredients) },
+            nextButtonEnabled = uiState.selectedIngredients.isNotEmpty() ,
             modifier = modifier.padding(top = contentPadding.calculateTopPadding())
         )
 
@@ -67,6 +68,7 @@ fun IngredientSuccessScreen(
     onSelectionToggled: (Ingredient) -> Unit,
     ingredients: List<Ingredient>,
     onNextButtonClicked: () -> Unit,
+    nextButtonEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -101,11 +103,11 @@ fun IngredientSuccessScreen(
         Spacer(modifier = Modifier.size(28.dp))
         Button(
             onClick = onNextButtonClicked,
+            enabled = nextButtonEnabled,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
                 .height(48.dp),
-
             ) {
             Text(text = "Get Recipes")
         }
@@ -127,7 +129,8 @@ fun SelectableIngredientCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable { onCheckToggled() }
+            .clickable
+            { onCheckToggled() }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -148,7 +151,7 @@ fun SelectableIngredientCard(
 
 @Composable
 fun InitialScreen(modifier: Modifier) {
-    Text(text = "initial")
+    Box(modifier = modifier)
 }
 
 @Composable
@@ -165,7 +168,12 @@ fun LoadingScreen(modifier: Modifier) {
 
 @Composable
 fun ErrorScreen(modifier: Modifier) {
-    Text(text = "error")
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = "Something Went Wrong")
+    }
 }
 
 @Preview(showBackground = true)
@@ -177,11 +185,12 @@ fun IngredientSuccessScreenPreview() {
             onSelectionToggled = {},
             onNextButtonClicked = {},
             ingredients = listOf(
-                Ingredient(name = "test1"),
-                Ingredient(name = "test2"),
-                Ingredient(name = "test3"),
-                Ingredient(name = "test4"),
-            )
+                Ingredient(name = "test1", id = 1),
+                Ingredient(name = "test2", id = 2),
+                Ingredient(name = "test3", id = 3),
+                Ingredient(name = "test4", id = 4),
+            ),
+            nextButtonEnabled = true,
         )
     }
 }
