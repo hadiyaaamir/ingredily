@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.IOException
 
 
 sealed interface IngredientsDataState {
@@ -27,6 +26,7 @@ data class IngredientsUiState(
     val ingredientsDataState: IngredientsDataState = IngredientsDataState.Initial,
     val selectedIngredients: List<Ingredient> = listOf(),
     val allIngredients: List<Ingredient> = listOf(),
+    val searchText: String = "",
 ) {
     fun isSelected(ingredient: Ingredient): Boolean {
         return selectedIngredients.contains(ingredient)
@@ -42,7 +42,7 @@ class IngredientsViewModel(private val recipesRepository: RecipesRepository) : V
         getIngredients()
     }
 
-    private fun getIngredients() {
+    fun getIngredients() {
         viewModelScope.launch {
             _uiState.update { currentState ->
                 currentState.copy(ingredientsDataState = IngredientsDataState.Loading)
@@ -63,19 +63,19 @@ class IngredientsViewModel(private val recipesRepository: RecipesRepository) : V
         }
     }
 
-     fun searchIngredients(query: String) {
+     fun searchIngredients() {
         viewModelScope.launch {
             _uiState.update { currentState ->
                 currentState.copy(ingredientsDataState = IngredientsDataState.Loading)
             }
             try {
-                val listResult = recipesRepository.searchIngredients(query)
+                val listResult = recipesRepository.searchIngredients(uiState.value.searchText)
                 _uiState.update { currentState ->
                     currentState.copy(
                         ingredientsDataState = IngredientsDataState.Success(listResult)
                     )
                 }
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 _uiState.update { currentState ->
                     currentState.copy(ingredientsDataState = IngredientsDataState.Error)
                 }
@@ -86,11 +86,17 @@ class IngredientsViewModel(private val recipesRepository: RecipesRepository) : V
      fun clearIngredientSearch() {
         _uiState.update { currentState ->
             currentState.copy(
+                searchText = "",
                 ingredientsDataState = IngredientsDataState.Success(uiState.value.allIngredients)
             )
         }
     }
 
+    fun updateSearchText(text: String) {
+        _uiState.update { currentState ->
+            currentState.copy(searchText = text)
+        }
+    }
 
     fun toggleSelection(ingredient: Ingredient) {
         _uiState.update { currentState ->

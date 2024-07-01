@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Done
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -76,12 +77,24 @@ fun IngredientsScreen(
             onNextButtonClicked = { onNextButtonClicked(uiState.selectedIngredients) },
             onClearAllClicked = { viewModel.clearAllSelection() },
             nextButtonEnabled = uiState.selectedIngredients.isNotEmpty(),
-            onSearchSubmit = { text -> viewModel.searchIngredients(text) },
+            onSearchSubmit = { viewModel.searchIngredients() },
             onSearchCleared = { viewModel.clearIngredientSearch() },
+            searchText = uiState.searchText,
+            onTextChanged = { text -> viewModel.updateSearchText(text) },
             modifier = modifier.padding(top = contentPadding.calculateTopPadding()),
         )
 
-        is IngredientsDataState.Error -> ErrorScreen(modifier = Modifier.fillMaxSize())
+        is IngredientsDataState.Error -> ErrorScreen(
+            onTryAgain = {
+                if(uiState.searchText.isEmpty()) {
+                    viewModel.getIngredients()
+                }
+                else {
+                    viewModel.clearIngredientSearch()
+                }
+                         },
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
@@ -94,7 +107,9 @@ fun IngredientSuccessScreen(
     onNextButtonClicked: () -> Unit,
     onClearAllClicked: () -> Unit,
     onSearchCleared: () -> Unit,
-    onSearchSubmit: (searchText: String) -> Unit,
+    onSearchSubmit: () -> Unit,
+    onTextChanged: (text: String) -> Unit,
+    searchText: String,
     nextButtonEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -120,6 +135,8 @@ fun IngredientSuccessScreen(
         SearchBar(
             onSearchSubmit = onSearchSubmit,
             onClearSearch = onSearchCleared,
+            searchText = searchText,
+            onTextChanged = onTextChanged,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -148,10 +165,11 @@ fun IngredientSuccessScreen(
         Button(
             onClick = onNextButtonClicked,
             enabled = nextButtonEnabled,
+            shape = RoundedCornerShape(16.dp),
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth()
-                .height(48.dp),
+                .height(52.dp),
         ) {
             Text(text = "Get Recipes")
         }
@@ -162,7 +180,9 @@ fun IngredientSuccessScreen(
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
-    onSearchSubmit: (searchText: String) -> Unit,
+    searchText: String,
+    onSearchSubmit: () -> Unit,
+    onTextChanged: (searchText: String) -> Unit,
     onClearSearch: () -> Unit,
     searchIcon: ImageVector = Icons.Default.Search,
     clearIcon: ImageVector = Icons.Default.Clear,
@@ -171,8 +191,11 @@ fun SearchBar(
 
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
+            value = searchText,
+            onValueChange = {
+                onTextChanged(it)
+                text = TextFieldValue(it)
+            },
             placeholder = { Text(text = "Search Ingredients...") },
             shape = RoundedCornerShape(16.dp),
             keyboardOptions = KeyboardOptions(
@@ -180,7 +203,7 @@ fun SearchBar(
                 imeAction = ImeAction.Search
             ),
             keyboardActions = KeyboardActions(
-                onSearch = { if(text.text.isNotEmpty()) onSearchSubmit(text.text) }
+                onSearch = { if (searchText.isNotEmpty()) onSearchSubmit() }
             ),
             leadingIcon = {
                 Icon(
@@ -189,7 +212,7 @@ fun SearchBar(
                 )
             },
             trailingIcon = {
-                if (text.text.isNotEmpty()) {
+                if (searchText.isNotEmpty()) {
                     IconButton(
                         onClick = {
                             text = TextFieldValue("")
@@ -208,11 +231,11 @@ fun SearchBar(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Button(
-            onClick = {  if(text.text.isNotEmpty())  onSearchSubmit(text.text) },
+            onClick = { if (text.text.isNotEmpty()) onSearchSubmit() },
             modifier = Modifier
                 .height(52.dp)
                 .weight(1f),
-            shape =  RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(16.dp),
         ) {
             Text(text = "Go")
         }
@@ -332,12 +355,27 @@ fun LoadingScreen(modifier: Modifier) {
 }
 
 @Composable
-fun ErrorScreen(modifier: Modifier) {
-    Box(
+fun ErrorScreen(
+    errorMessage: String = "Something Went Wrong",
+    onTryAgain: () -> Unit = {},
+    modifier: Modifier = Modifier,
+) {
+    Column(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = "Something Went Wrong")
+        Icon(
+            imageVector = Icons.Outlined.WarningAmber,
+            contentDescription = "warning icon", 
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = errorMessage, style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onTryAgain) {
+            Text(text = "Try Again")
+        }
     }
 }
 
@@ -345,11 +383,14 @@ fun ErrorScreen(modifier: Modifier) {
 @Composable
 fun IngredientSuccessScreenPreview() {
     IngredilyTheme {
-        SearchBar(
-            onSearchSubmit = {},
-            onClearSearch = {},
-            modifier = Modifier.fillMaxWidth()
-        )
+        ErrorScreen()
+//        SearchBar(
+//            onSearchSubmit = {},
+//            onClearSearch = {},
+//            modifier = Modifier.fillMaxWidth(),
+//            searchText = "hello",
+//            onTextChanged = {}
+//        )
 //        IngredientSuccessScreen(
 //            isIngredientSelected = { false },
 //            onSelectionToggled = {},

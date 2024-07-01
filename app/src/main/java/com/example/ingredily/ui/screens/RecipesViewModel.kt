@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.IOException
 
 sealed interface SearchedRecipesDataState {
     object Initial : SearchedRecipesDataState
@@ -63,7 +62,7 @@ class RecipesViewModel(private val recipesRepository: RecipesRepository) : ViewM
                         searchedRecipesDataState = SearchedRecipesDataState.Success(listResult)
                     )
                 }
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 _uiState.update { currentState ->
                     currentState.copy(
                         searchedRecipesDataState = SearchedRecipesDataState.Error
@@ -85,7 +84,7 @@ class RecipesViewModel(private val recipesRepository: RecipesRepository) : ViewM
                         recipeDetailDataState = RecipeDetailDataState.Success(result)
                     )
                 }
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 _uiState.update { currentState ->
                     currentState.copy(recipeDetailDataState = RecipeDetailDataState.Error)
                 }

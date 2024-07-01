@@ -70,7 +70,10 @@ fun RecipeDetailScreen(
             modifier = modifier,
         )
 
-        is RecipeDetailDataState.Error -> ErrorScreen(modifier = Modifier.fillMaxSize())
+        is RecipeDetailDataState.Error -> ErrorScreen(
+            onTryAgain = { viewModel.getRecipeDetails(recipe.id) },
+            modifier = Modifier.fillMaxSize()
+        )
     }
 
 }
