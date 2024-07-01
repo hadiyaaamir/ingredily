@@ -98,54 +98,24 @@ fun IngredientSuccessScreen(
 
         if (selectedIngredients.isNotEmpty()) {
             Spacer(modifier = Modifier.size(16.dp))
-            Text(
-                text = "Clear All",
-                style = MaterialTheme.typography.labelLarge.copy(
-                    color = MaterialTheme.colorScheme.primary
-                ),
-                modifier = Modifier
-                    .clickable { onClearAllClicked() }
-                    .align(Alignment.End)
-                    .padding(bottom = 4.dp, end = 4.dp)
+            ClearAllButton(modifier = Modifier
+                .clickable { onClearAllClicked() }
+                .align(Alignment.End)
+                .padding(bottom = 4.dp, end = 4.dp)
             )
         }
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(if (selectedIngredients.size > 5) 2 else 1),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier.heightIn(max = 200.dp)
-        ) {
-            items(items = selectedIngredients, key = { it.id }) { ingredient ->
-                IconTextRow(
-                    icon = Icons.Outlined.Done,
-                    iconColor = Color(0xff119c6e),
-                    iconSize = 16.dp,
-                    iconDescription = "tick icon",
-                    text = ingredient.name,
-                    textStyle = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-
+        SelectedIngredientList(ingredients = selectedIngredients)
         Spacer(modifier = Modifier.size(20.dp))
+        AllIngredientsList(
+            ingredients = sortedIngredients,
+            isIngredientSelected = isIngredientSelected,
+            onSelectionToggled = onSelectionToggled,
+            modifier = Modifier.weight(1f)
+        )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            items(items = sortedIngredients) { ingredient ->
-                SelectableIngredientCard(
-                    ingredient = ingredient,
-                    isChecked = isIngredientSelected(ingredient),
-                    onCheckToggled = { onSelectionToggled(ingredient) },
-                )
-            }
-        }
         Spacer(modifier = Modifier.size(28.dp))
+
         Button(
             onClick = onNextButtonClicked,
             enabled = nextButtonEnabled,
@@ -158,6 +128,69 @@ fun IngredientSuccessScreen(
         }
     }
 }
+
+@Composable
+fun ClearAllButton(
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = "Clear All",
+        style = MaterialTheme.typography.labelLarge.copy(
+            color = MaterialTheme.colorScheme.primary
+        ),
+        modifier = modifier
+    )
+}
+
+@Composable
+fun SelectedIngredientList(
+    ingredients: List<Ingredient>,
+    modifier: Modifier = Modifier
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(if (ingredients.size > 5) 2 else 1),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier.heightIn(max = 200.dp)
+    ) {
+        items(items = ingredients, key = { it.id }) { ingredient ->
+            IconTextRow(
+                icon = Icons.Outlined.Done,
+                iconColor = Color(0xff119c6e),
+                iconSize = 16.dp,
+                iconDescription = "tick icon",
+                text = ingredient.name,
+                textStyle = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+
+}
+
+@Composable
+fun AllIngredientsList(
+    ingredients: List<Ingredient>,
+    onSelectionToggled: (Ingredient) -> Unit,
+    isIngredientSelected: (Ingredient) -> Boolean,
+    modifier: Modifier = Modifier
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = modifier
+
+            .fillMaxWidth()
+    ) {
+        items(items = ingredients) { ingredient ->
+            SelectableIngredientCard(
+                ingredient = ingredient,
+                isChecked = isIngredientSelected(ingredient),
+                onCheckToggled = { onSelectionToggled(ingredient) },
+            )
+        }
+    }
+}
+
 
 @Composable
 fun SelectableIngredientCard(
