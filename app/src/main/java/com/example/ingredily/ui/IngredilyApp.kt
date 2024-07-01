@@ -4,13 +4,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.ingredily.ui.screens.IngredientsScreen
 import com.example.ingredily.ui.screens.IngredientsViewModel
@@ -27,10 +25,7 @@ enum class IngredilyScreen {
 fun IngredilyApp(
     navController: NavHostController = rememberNavController()
 ) {
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentScreen = IngredilyScreen.valueOf(
-        backStackEntry?.destination?.route ?: IngredilyScreen.Ingredients.name
-    )
+
 
     Scaffold(
         modifier = Modifier,
@@ -62,7 +57,12 @@ fun IngredilyApp(
             composable(IngredilyScreen.Recipes.name) {
                 RecipesScreen(
                     viewModel = recipesViewModel,
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(innerPadding),
+                    backToHome = {
+                        if (navController.previousBackStackEntry != null) {
+                            navController.navigateUp()
+                        }
+                    }
                 )
             }
         }

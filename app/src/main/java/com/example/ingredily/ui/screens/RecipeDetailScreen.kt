@@ -114,7 +114,7 @@ fun RecipeDetailSuccessScreen(
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "By ${recipe.sourceName}",
                 style = MaterialTheme.typography.bodyLarge.copy(
@@ -343,7 +343,7 @@ fun RecipesDetailScreenPreview() {
     IngredilyTheme {
         RecipeDetailSuccessScreen(
             recipe = fakeDetailRecipe,
-            searchRecipe = fakeRecipe
+            searchRecipe = fakeRecipe,
         )
     }
 

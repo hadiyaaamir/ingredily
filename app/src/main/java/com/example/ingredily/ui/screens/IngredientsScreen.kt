@@ -74,6 +74,7 @@ fun IngredientSuccessScreen(
             .fillMaxSize()
             .padding(20.dp)
     ) {
+        Spacer(modifier = Modifier.size(16.dp))
         Text(
             text = "What ingredients do you have today?",
             style = MaterialTheme.typography.headlineMedium.copy(

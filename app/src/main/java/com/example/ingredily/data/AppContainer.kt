@@ -24,7 +24,10 @@ class DefaultAppContainer : AppContainer {
         .setLevel(HttpLoggingInterceptor.Level.BODY)
     private val client: OkHttpClient = OkHttpClient.Builder().addInterceptor(interceptor).build();
 
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
 
     private val retrofit = Retrofit.Builder()
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))

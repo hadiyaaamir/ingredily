@@ -2,6 +2,7 @@ package com.example.ingredily.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,12 +18,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -55,6 +59,7 @@ import com.example.ingredily.ui.theme.IngredilyTheme
 fun RecipesScreen(
     viewModel: RecipesViewModel,
     modifier: Modifier = Modifier,
+    backToHome: () -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -65,6 +70,7 @@ fun RecipesScreen(
         is SearchedRecipesDataState.Success -> RecipesSuccessScreen(
             recipes = searchedRecipesDataState.recipes,
             viewModel = viewModel,
+            backToHome = backToHome,
             modifier = modifier,
         )
 
@@ -77,6 +83,7 @@ fun RecipesScreen(
 fun RecipesSuccessScreen(
     recipes: List<IngredientSearchRecipe>,
     viewModel: RecipesViewModel,
+    backToHome: () -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -86,43 +93,64 @@ fun RecipesSuccessScreen(
         navigator.navigateBack()
     }
 
-    ListDetailPaneScaffold(
-        directive = navigator.scaffoldDirective,
-        value = navigator.scaffoldValue,
-        listPane = {
-            AnimatedPane {
-                Column(modifier = modifier.padding(20.dp)) {
-                    Text(
-                        text = "Recipes for you",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    )
-                    Spacer(modifier = Modifier.size(28.dp))
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                        items(items = recipes) { recipe ->
-                            RecipeCard(
-                                recipe = recipe,
-                                onClicked = {
-                                   viewModel.getRecipeDetails(recipe.id)
-                                    navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, recipe)
-                                }
+    Box(modifier = modifier) {
+        ListDetailPaneScaffold(
+            directive = navigator.scaffoldDirective,
+            value = navigator.scaffoldValue,
+            listPane = {
+                AnimatedPane {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Spacer(modifier = Modifier.size(48.dp))
+                        Text(
+                            text = "Recipes for you",
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontWeight = FontWeight.SemiBold
                             )
+                        )
+                        Spacer(modifier = Modifier.size(28.dp))
+                        LazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+                            items(items = recipes) { recipe ->
+                                RecipeCard(
+                                    recipe = recipe,
+                                    onClicked = {
+                                        viewModel.getRecipeDetails(recipe.id)
+                                        navigator.navigateTo(
+                                            ListDetailPaneScaffoldRole.Detail,
+                                            recipe
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
                 }
-            }
-        },
-        detailPane = {
-            AnimatedPane {
-                navigator.currentDestination?.content?.let {
-                    RecipeDetailScreen(recipe = it, viewModel = viewModel, modifier = modifier)
+            },
+            detailPane = {
+                AnimatedPane {
+                    navigator.currentDestination?.content?.let {
+                        RecipeDetailScreen(
+                            recipe = it,
+                            viewModel = viewModel,
+                            modifier = modifier
+                        )
+                    }
                 }
-            }
 
-        },
-    )
+            },
+        )
+        CustomBackArrow(
+            onBackButtonClicked = {
+                if (navigator.canNavigateBack()) {
+                    navigator.navigateBack()
+                } else {
+                    backToHome()
+                }
+            },
+        )
+
+    }
 }
+
 
 @Composable
 fun RecipeCard(
@@ -154,7 +182,7 @@ fun RecipeCard(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Top,
         ) {
             Text(
                 recipe.title, style = MaterialTheme.typography.titleLarge,
@@ -174,7 +202,8 @@ fun RecipeCard(
                     text = "${recipe.likes} likes",
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.secondary
-                    )
+                    ),
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
         }
@@ -223,6 +252,24 @@ fun IconTextRow(
     }
 }
 
+@Composable
+fun CustomBackArrow(
+    onBackButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onBackButtonClicked,
+        modifier = modifier
+            .padding(horizontal = 8.dp, vertical = 16.dp)
+            .background(MaterialTheme.colorScheme.surface, shape = CircleShape),
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = "back navigation button"
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun RecipesSuccessScreenPreview() {
@@ -238,13 +285,16 @@ fun RecipesSuccessScreenPreview() {
         missedIngredients = listOf(),
     )
     IngredilyTheme {
+//        RecipeCard(recipe = fakeRecipe, onClicked = {  })
+
         RecipesSuccessScreen(
             viewModel = viewModel(),
             recipes = listOf(
                 fakeRecipe,
                 fakeRecipe,
                 fakeRecipe
-            )
+            ),
+            backToHome = {}
         )
     }
 }

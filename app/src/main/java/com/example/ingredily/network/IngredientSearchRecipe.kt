@@ -5,13 +5,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 
 data class IngredientSearchRecipe(
-    val id: Int,
-    val image: String,
-    val title: String,
-    val usedIngredientCount: Int,
-    val missedIngredientCount: Int,
-    val likes: Int,
-    val usedIngredients: List<RecipeIngredient>,
-    val missedIngredients: List<RecipeIngredient>,
-    val unusedIngredients: List<RecipeIngredient>,
+    val id: Int = 0,
+    val image: String = "",
+    val title: String = "",
+    val usedIngredientCount: Int = 0,
+    val missedIngredientCount: Int = 0,
+    val likes: Int = 0,
+    val usedIngredients: List<RecipeIngredient> = listOf(),
+    val missedIngredients: List<RecipeIngredient> = listOf(),
+    val unusedIngredients: List<RecipeIngredient> = listOf(),
 )
