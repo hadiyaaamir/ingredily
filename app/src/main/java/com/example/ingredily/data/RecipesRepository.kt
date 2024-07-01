@@ -1,8 +1,11 @@
 package com.example.ingredily.data
 
+import android.content.Context
 import com.example.ingredily.network.DetailedRecipe
 import com.example.ingredily.network.IngredientSearchRecipe
 import com.example.ingredily.network.RecipesApiService
+import com.opencsv.CSVReader
+import java.io.InputStreamReader
 
 
 interface RecipesRepository {
@@ -16,36 +19,27 @@ interface RecipesRepository {
 }
 
 class RecipesRepositoryImpl(
-    private val recipesApiService: RecipesApiService
+    private val recipesApiService: RecipesApiService,
+    private val context: Context,
 ) : RecipesRepository {
 
     override fun getIngredients(): List<Ingredient> {
-        return listOf<Ingredient>(
-            Ingredient(name = "apple"),
-            Ingredient("banana"),
-            Ingredient("green chilli"),
-            Ingredient("cucumber"),
-            Ingredient("fish"),
-            Ingredient("chicken"),
-            Ingredient("beef"),
-            Ingredient("meat"),
-            Ingredient("egg"),
-            Ingredient("onion"),
-            Ingredient("capsicum"),
-            Ingredient("mushroom"),
-            Ingredient("corn"),
-            Ingredient("flour"),
-            Ingredient("yeast"),
-            Ingredient("oregano"),
-            Ingredient("cinnamon"),
-            Ingredient("red chilli flakes"),
-            Ingredient("orange"),
-            Ingredient("coriander"),
-            Ingredient("mint"),
-            Ingredient("lemon"),
-            Ingredient("cabbage"),
-            Ingredient("lettuce")
-        )
+        val ingredients = mutableListOf<Ingredient>()
+
+        val inputStream = context.assets.open("top-1k-ingredients.csv")
+        val reader = CSVReader(InputStreamReader(inputStream))
+
+        reader.use {
+            var line: Array<String>?
+            while (reader.readNext().also { line = it } != null) {
+                if (line != null && line!!.isNotEmpty()) {
+                    val ingredient = line!![0].split(';')
+                    ingredients.add(Ingredient(ingredient[0], ingredient[1].toIntOrNull() ?: 0))
+                }
+            }
+        }
+
+        return ingredients
     }
 
     override suspend fun getRecipesByIngredients(
@@ -62,6 +56,4 @@ class RecipesRepositoryImpl(
     override suspend fun getRecipeDetail(id: Int): DetailedRecipe {
         return recipesApiService.getRecipeDetail(id, API_KEY)
     }
-
-
 }

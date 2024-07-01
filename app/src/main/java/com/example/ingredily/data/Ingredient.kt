@@ -2,7 +2,8 @@ package com.example.ingredily.data
 
 
 data class Ingredient (
-    val name: String
+    val name: String,
+    val id:Int,
 ) {
     override fun toString(): String {
         return name
