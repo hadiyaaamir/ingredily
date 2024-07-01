@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -93,7 +94,9 @@ fun RecipesSuccessScreen(
                 Column(modifier = modifier.padding(20.dp)) {
                     Text(
                         text = "Recipes for you",
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.SemiBold
+                        )
                     )
                     Spacer(modifier = Modifier.size(28.dp))
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {

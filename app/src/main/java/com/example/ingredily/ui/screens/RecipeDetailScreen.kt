@@ -1,7 +1,11 @@
 package com.example.ingredily.ui.screens
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,8 +37,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.ingredily.network.AnalyzedInstruction
@@ -75,6 +82,8 @@ fun RecipeDetailSuccessScreen(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
+    val ctx = LocalContext.current
+
     Column(modifier = modifier.verticalScroll(scrollState)) {
 
         AsyncImage(
@@ -86,7 +95,7 @@ fun RecipeDetailSuccessScreen(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp)
+                .height(300.dp)
                 .border(
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 )
@@ -100,8 +109,17 @@ fun RecipeDetailSuccessScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = recipe.title,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
                 modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "By ${recipe.sourceName}",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.secondary
+                ),
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -113,7 +131,6 @@ fun RecipeDetailSuccessScreen(
                     .padding(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-
                 RecipeIconInfo(
                     icon = Icons.Outlined.LocalDining,
                     iconDescription = "person icon",
@@ -129,9 +146,6 @@ fun RecipeDetailSuccessScreen(
                     iconDescription = "like icon",
                     text = "${recipe.aggregateLikes} likes",
                 )
-//                Text(text = "${recipe.servings} servings")
-//                Text(text = "Time: ${recipe.readyInMinutes} min")
-//                Text(text = "Likes: ${recipe.aggregateLikes}")
             }
             Spacer(modifier = Modifier.height(12.dp))
             Divider()
@@ -139,7 +153,9 @@ fun RecipeDetailSuccessScreen(
             Spacer(modifier = Modifier.height(28.dp))
             Text(
                 text = "Ingredients",
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(12.dp))
@@ -176,7 +192,9 @@ fun RecipeDetailSuccessScreen(
 
             Text(
                 text = "Instructions",
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -192,9 +210,43 @@ fun RecipeDetailSuccessScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            Divider()
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Credits",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = recipe.creditsText,
+                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 20.sp),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = recipe.sourceUrl,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    lineHeight = 16.sp,
+                    color = MaterialTheme.colorScheme.secondary,
+                    textDecoration = TextDecoration.Underline,
+                ),
+                modifier = Modifier.clickable {
+                    launchUrl(recipe.sourceUrl, ctx)
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Divider()
         }
     }
+}
 
+fun launchUrl(url: String, ctx: Context) {
+    val urlIntent = Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse(url)
+    )
+    ctx.startActivity(urlIntent)
 }
 
 @Composable
@@ -284,6 +336,8 @@ fun RecipesDetailScreenPreview() {
             )
         ),
         aggregateLikes = 10,
+        creditsText = "Foodista.com – The Cooking Encyclopedia Everyone Can Edit",
+        sourceName = "Foodista",
     )
 
     IngredilyTheme {

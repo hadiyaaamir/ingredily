@@ -7,11 +7,13 @@ data class DetailedRecipe(
     val id: Int,
     val title: String,
     val summary: String,
-    val image: String?,
+    val image: String? = null,
     val aggregateLikes: Int,
     val servings: Int,
     val readyInMinutes: Int,
     val sourceUrl: String,
+    val sourceName:String,
+    val creditsText:String,
     val extendedIngredients: List<RecipeIngredient>,
     val analyzedInstructions: List<AnalyzedInstruction>
 )

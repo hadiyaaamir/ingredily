@@ -2,6 +2,7 @@ package com.example.ingredily.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ingredily.data.Ingredient
@@ -73,7 +76,9 @@ fun IngredientSuccessScreen(
     ) {
         Text(
             text = "What ingredients do you have today?",
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.SemiBold
+            )
         )
         Spacer(modifier = Modifier.size(28.dp))
         LazyVerticalGrid(
@@ -147,7 +152,14 @@ fun InitialScreen(modifier: Modifier) {
 
 @Composable
 fun LoadingScreen(modifier: Modifier) {
-    Text(text = "loading")
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(32.dp)
+        )
+    }
 }
 
 @Composable
