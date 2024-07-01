@@ -8,7 +8,8 @@ import com.example.ingredily.network.RecipesApiService
 interface RecipesRepository {
     fun getIngredients(): List<Ingredient>
     suspend fun getRecipesByIngredients(
-        ingredients: List<Ingredient>
+        ingredients: List<Ingredient>,
+        number: Int = 20,
     ): List<IngredientSearchRecipe>
 
     suspend fun getRecipeDetail(id: Int): DetailedRecipe
@@ -48,9 +49,14 @@ class RecipesRepositoryImpl(
     }
 
     override suspend fun getRecipesByIngredients(
-        ingredients: List<Ingredient>
+        ingredients: List<Ingredient>,
+        number: Int,
     ): List<IngredientSearchRecipe> {
-        return recipesApiService.getRecipesByIngredients(API_KEY, ingredients.toQueryString())
+        return recipesApiService.getRecipesByIngredients(
+            API_KEY,
+            ingredients.toQueryString(),
+            number
+        )
     }
 
     override suspend fun getRecipeDetail(id: Int): DetailedRecipe {

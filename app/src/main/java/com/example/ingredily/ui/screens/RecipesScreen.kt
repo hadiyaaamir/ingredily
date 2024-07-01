@@ -49,7 +49,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.ingredily.network.IngredientSearchRecipe
@@ -102,9 +101,16 @@ fun RecipesSuccessScreen(
                     Column(modifier = Modifier.padding(20.dp)) {
                         Spacer(modifier = Modifier.size(48.dp))
                         Text(
-                            text = "Recipes for you",
+                            text = "Recipes for You",
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            text = "Handpicked recipes using what you have",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = MaterialTheme.colorScheme.secondary
                             )
                         )
                         Spacer(modifier = Modifier.size(28.dp))
@@ -285,16 +291,32 @@ fun RecipesSuccessScreenPreview() {
         missedIngredients = listOf(),
     )
     IngredilyTheme {
-//        RecipeCard(recipe = fakeRecipe, onClicked = {  })
-
-        RecipesSuccessScreen(
-            viewModel = viewModel(),
-            recipes = listOf(
-                fakeRecipe,
-                fakeRecipe,
-                fakeRecipe
-            ),
-            backToHome = {}
-        )
+        Column {
+            Spacer(modifier = Modifier.size(48.dp))
+            Text(
+                text = "Recipes for You",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                text = "Handpicked recipes using what you have",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Normal,
+                )
+            )
+            Spacer(modifier = Modifier.size(28.dp))
+        }
+//        RecipesSuccessScreen(
+//            viewModel = viewModel(),
+//            recipes = listOf(
+//                fakeRecipe,
+//                fakeRecipe,
+//                fakeRecipe
+//            ),
+//            backToHome = {}
+//        )
     }
 }

@@ -221,7 +221,7 @@ fun RecipeDetailSuccessScreen(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = recipe.creditsText,
-                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 20.sp),
+                style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 20.sp),
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
