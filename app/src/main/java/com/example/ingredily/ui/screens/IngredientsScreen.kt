@@ -1,6 +1,7 @@
 package com.example.ingredily.ui.screens
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -89,13 +90,12 @@ fun IngredientsScreen(
 
         is IngredientsDataState.Error -> ErrorScreen(
             onTryAgain = {
-                if(uiState.searchText.isEmpty()) {
+                if (uiState.searchText.isEmpty()) {
                     viewModel.getIngredients()
-                }
-                else {
+                } else {
                     viewModel.clearIngredientSearch()
                 }
-                         },
+            },
             modifier = Modifier.fillMaxSize()
         )
     }
@@ -269,7 +269,7 @@ fun SelectedIngredientList(
 
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
-    if(isLandscape) {
+    if (isLandscape) {
         LazyHorizontalGrid(
             rows = GridCells.Fixed(1),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -283,14 +283,13 @@ fun SelectedIngredientList(
         LazyVerticalGrid(
             columns = GridCells.Fixed(if (ingredients.size > 5) 2 else 1),
             verticalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = modifier.heightIn(max = screenHeight/6)
+            modifier = modifier.heightIn(max = screenHeight / 6)
         ) {
             items(items = ingredients, key = { it.id }) { ingredient ->
                 selectedIngredientRow(ingredient)
             }
         }
     }
-
 
 
 }
@@ -341,7 +340,18 @@ fun SelectableIngredientCard(
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        border = BorderStroke(
+            width = if(isChecked)  1.5.dp else 0.5.dp,
+            color = if(isChecked) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.outlineVariant
+            }
+        ),
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
@@ -395,7 +405,7 @@ fun ErrorScreen(
     ) {
         Icon(
             imageVector = Icons.Outlined.WarningAmber,
-            contentDescription = "warning icon", 
+            contentDescription = "warning icon",
             modifier = Modifier.size(64.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -419,29 +429,39 @@ fun IngredientSuccessScreenPreview() {
 //            searchText = "hello",
 //            onTextChanged = {}
 //        )
-        IngredientSuccessScreen(
-            isIngredientSelected = { false },
-            onSelectionToggled = {},
-            onNextButtonClicked = {},
-            onClearAllClicked = {},
+//        IngredientSuccessScreen(
+//            isIngredientSelected = { false },
+//            onSelectionToggled = {},
+//            onNextButtonClicked = {},
+//            onClearAllClicked = {},
+//            ingredients = listOf(
+//                Ingredient(name = "test1", id = 1),
+//                Ingredient(name = "test2", id = 2),
+//                Ingredient(name = "test3", id = 3),
+//                Ingredient(name = "test4", id = 4),
+//            ),
+//            selectedIngredients = listOf(
+//                Ingredient(name = "test3", id = 3),
+//                Ingredient(name = "test1", id = 1),
+//                Ingredient(name = "test2", id = 2),
+//                Ingredient(name = "test3", id = 3),
+//                Ingredient(name = "test4", id = 4),
+//            ),
+//            nextButtonEnabled = true,
+//            onSearchSubmit = {},
+//            onTextChanged = {},
+//            searchText = "",
+//            onSearchCleared = {},
+//        )
+        AllIngredientsList(
             ingredients = listOf(
                 Ingredient(name = "test1", id = 1),
                 Ingredient(name = "test2", id = 2),
                 Ingredient(name = "test3", id = 3),
                 Ingredient(name = "test4", id = 4),
             ),
-            selectedIngredients = listOf(
-                Ingredient(name = "test3", id = 3),
-                Ingredient(name = "test1", id = 1),
-                Ingredient(name = "test2", id = 2),
-                Ingredient(name = "test3", id = 3),
-                Ingredient(name = "test4", id = 4),
-            ),
-            nextButtonEnabled = true,
-            onSearchSubmit = {},
-            onTextChanged = {}, 
-            searchText = "",
-            onSearchCleared =  {},
+            onSelectionToggled = {},
+            isIngredientSelected = { false },
         )
     }
 }
