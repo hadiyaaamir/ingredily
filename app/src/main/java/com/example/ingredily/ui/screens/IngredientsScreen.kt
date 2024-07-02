@@ -1,5 +1,6 @@
 package com.example.ingredily.ui.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -261,23 +264,48 @@ fun SelectedIngredientList(
     ingredients: List<Ingredient>,
     modifier: Modifier = Modifier
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(if (ingredients.size > 5) 2 else 1),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = modifier.heightIn(max = 200.dp)
-    ) {
-        items(items = ingredients, key = { it.id }) { ingredient ->
-            IconTextRow(
-                icon = Icons.Outlined.Done,
-                iconColor = Color(0xff119c6e),
-                iconSize = 16.dp,
-                iconDescription = "tick icon",
-                text = ingredient.name,
-                textStyle = MaterialTheme.typography.bodyMedium
-            )
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+
+    if(isLandscape) {
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(1),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = modifier.height(28.dp)
+        ) {
+            items(items = ingredients, key = { it.id }) { ingredient ->
+                selectedIngredientRow(ingredient)
+            }
+        }
+    } else {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(if (ingredients.size > 5) 2 else 1),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = modifier.heightIn(max = screenHeight/6)
+        ) {
+            items(items = ingredients, key = { it.id }) { ingredient ->
+                selectedIngredientRow(ingredient)
+            }
         }
     }
 
+
+
+}
+
+@Composable
+fun selectedIngredientRow(ingredient: Ingredient, modifier: Modifier = Modifier) {
+    IconTextRow(
+        icon = Icons.Outlined.Done,
+        iconColor = Color(0xff119c6e),
+        iconSize = 16.dp,
+        iconDescription = "tick icon",
+        text = ingredient.name,
+        textStyle = MaterialTheme.typography.bodyMedium,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -383,7 +411,7 @@ fun ErrorScreen(
 @Composable
 fun IngredientSuccessScreenPreview() {
     IngredilyTheme {
-        ErrorScreen()
+//        ErrorScreen()
 //        SearchBar(
 //            onSearchSubmit = {},
 //            onClearSearch = {},
@@ -391,25 +419,29 @@ fun IngredientSuccessScreenPreview() {
 //            searchText = "hello",
 //            onTextChanged = {}
 //        )
-//        IngredientSuccessScreen(
-//            isIngredientSelected = { false },
-//            onSelectionToggled = {},
-//            onNextButtonClicked = {},
-//            onClearAllClicked = {},
-//            ingredients = listOf(
-//                Ingredient(name = "test1", id = 1),
-//                Ingredient(name = "test2", id = 2),
-//                Ingredient(name = "test3", id = 3),
-//                Ingredient(name = "test4", id = 4),
-//            ),
-//            selectedIngredients = listOf(
-//                Ingredient(name = "test3", id = 3),
-//                Ingredient(name = "test1", id = 1),
-//                Ingredient(name = "test2", id = 2),
-//                Ingredient(name = "test3", id = 3),
-//                Ingredient(name = "test4", id = 4),
-//            ),
-//            nextButtonEnabled = true,
-//        )
+        IngredientSuccessScreen(
+            isIngredientSelected = { false },
+            onSelectionToggled = {},
+            onNextButtonClicked = {},
+            onClearAllClicked = {},
+            ingredients = listOf(
+                Ingredient(name = "test1", id = 1),
+                Ingredient(name = "test2", id = 2),
+                Ingredient(name = "test3", id = 3),
+                Ingredient(name = "test4", id = 4),
+            ),
+            selectedIngredients = listOf(
+                Ingredient(name = "test3", id = 3),
+                Ingredient(name = "test1", id = 1),
+                Ingredient(name = "test2", id = 2),
+                Ingredient(name = "test3", id = 3),
+                Ingredient(name = "test4", id = 4),
+            ),
+            nextButtonEnabled = true,
+            onSearchSubmit = {},
+            onTextChanged = {}, 
+            searchText = "",
+            onSearchCleared =  {},
+        )
     }
 }
