@@ -25,7 +25,7 @@ Ingredily is an innovative recipes app designed to help users discover delicious
 - **Jetpack Compose**: Leveraged Jetpack Compose for a modern and responsive UI.
 - **State Management**: Implemented ViewModel StateFlow for efficient state management.
 - **Networking**: Used Retrofit for reliable and efficient API calls.
-- **Image Loading**: Integrated Coil for high-quality image loading.
+- **Network Image Loading**: Integrated Coil for high-quality image loading.
 - **Asynchronous Operations**: Ensured smooth and responsive performance with Coroutines.
 - **Navigation**: Implemented advanced navigation using NavController and NavHost.
 - **Adaptable Layout**: Designed a flexible layout for the ListDetail view of recipes, ensuring a great user experience across devices.
