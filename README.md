@@ -4,9 +4,9 @@
 
 Ingredily is an innovative recipes app designed to help users discover delicious recipes based on the ingredients they currently have. By simply selecting the ingredients available, users can generate a variety of recipes to try out, making cooking both fun and resourceful.
 
-## Screen Recording 🎥
 
-[Insert Screen Recording Here]
+https://github.com/hadiyaaamir/ingredily/assets/63019067/271dea44-2f42-440e-b953-2557e2e29ef1
+
 
 <br>
 
